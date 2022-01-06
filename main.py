@@ -85,9 +85,9 @@ def test_word(word, secret_word):
     return banned_letters, new_partial_word, contains_letters
 
 
-def join_partial_words(pword1, pword2):
+def join_partial_words(p_word1, p_word2):
     result = ''
-    for l1, l2 in zip(pword1, pword2):
+    for l1, l2 in zip(p_word1, p_word2):
         if l1 == '_' and l2 == '_':
             result += '_'
         elif l1 == '_':
