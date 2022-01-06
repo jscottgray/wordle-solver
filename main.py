@@ -1,4 +1,3 @@
-import sys
 import random
 
 
@@ -13,7 +12,12 @@ def get_all_words():
 ALL_5_LETTER_WORDS = get_all_words()
 
 
-def average_solve_iterations(total_runs = 1000):
+def choose_word(words, banned_letters, partial_word, contains_letters):
+    random_index = random.randrange(len(words))
+    return words[random_index]
+
+
+def average_solve_iterations(total_runs = 10):
     total_iterations = 0
     for _ in range(total_runs):
         words = get_possible_words()
@@ -22,7 +26,7 @@ def average_solve_iterations(total_runs = 1000):
     print(f'Average iterations: {total_iterations / total_runs}')
 
 
-def solve(secret_word = 'tiger'):
+def solve(choose_word_func = choose_word, secret_word = 'tiger'):
     banned_letters = set()
     partial_word = '_____'
     contains_letters = set()
@@ -31,7 +35,7 @@ def solve(secret_word = 'tiger'):
 
     while ('_' in partial_word):
         possible_words = get_possible_words(banned_letters, partial_word, contains_letters)
-        possible_word = choose_word(possible_words)
+        possible_word = choose_word_func(possible_words, banned_letters, partial_word, contains_letters)
         new_banned_letters, new_partial_word, new_contains_letters = test_word(possible_word, secret_word)
 
         banned_letters = banned_letters.union(new_banned_letters)
@@ -39,11 +43,6 @@ def solve(secret_word = 'tiger'):
         partial_word = join_partial_words(partial_word, new_partial_word)
 
         iterations += 1
-        #print(f'Iteration: {iterations}, Guess: {possible_word}, Partial Word: {partial_word}, Banned Letters: {banned_letters}, Contains Letters: {contains_letters}')
-        #if len(possible_words) < 50:
-        #    print(possible_words)
-        #else:
-        #    print(f'Possible words: {len(possible_words)}')
 
     return partial_word, iterations
 
@@ -67,11 +66,6 @@ def get_possible_words(banned_letters = '', partial_word = '_____', contains_let
             if match:
                 matching_words.append(word)
     return matching_words
-
-
-def choose_word(words):
-    random_index = random.randrange(len(words))
-    return words[random_index]
 
 
 def choose_random_word(words):
@@ -103,24 +97,6 @@ def join_partial_words(pword1, pword2):
     return result
 
 
-def questions():
-    # ask the user for the letters that are not allowed
-    banned_letters = input('Enter the letters that are not allowed: ')
-    # ask the user for the letters that must be in the word
-    contains_letters = input('Enter the letters that must be in the word: ')
-    # ask the user for the partial word
-    partialWord = input('Enter the partial word: ')
-    # call the main function
-    solve(banned_letters, partialWord, contains_letters)
-
 if __name__ == '__main__':
-    #check if argv is passed
-    if len(sys.argv) == 4:
-        get_possible_words(sys.argv[1], sys.argv[2], sys.argv[3])
-    elif len(sys.argv) == 3:
-        get_possible_words(sys.argv[1], sys.argv[2])
-    elif len(sys.argv) == 2:
-        get_possible_words(sys.argv[1])
-    else:
-        average_solve_iterations()
+    average_solve_iterations()
         
