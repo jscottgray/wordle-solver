@@ -22,31 +22,26 @@ def choose_random_word(words, banned_letters = set(), partial_word = '_____', co
     return words[random_index]
 
 
-#TODO finish this
 def optimized_choose_word(words = ALL_5_LETTER_WORDS, banned_letters = set(), partial_word = '_____', contains_letters = set()):
+    if len(words) == 12653:
+        return 'eorls'
+    ###################
     guess_totals = {}
     counter = 0
-    for guess in random.sample(words, min(len(words), 20)):
+    for guess in random.sample(words, min(len(words), 1000)):
     #for guess in ALL_5_LETTER_WORDS:
         total = 0
         #for possible_secret_word in ALL_5_LETTER_WORDS:
-        for possible_secret_word in random.sample(words, min(len(words), 20)):
+        for possible_secret_word in random.sample(words, min(len(words), 100)):
             #if counter % 1000 == 0:
                 #print(guess, possible_secret_word)
             banned_letters, partial_word, contains_letters = test_word(guess, possible_secret_word)
-            possible_words = get_possible_words(banned_letters, partial_word, contains_letters)
+            possible_words = get_possible_words(words, banned_letters, partial_word, contains_letters)
             total += len(possible_words)
             counter += 1
         guess_totals[guess] = total
-        #print(guess_totals)
     result = min(guess_totals, key=guess_totals.get)
-    print(f'Our guess will be: {result}')
     return result
-
-#TODO add testing
-#TODO optimize this with iterators
-#TODO optimize all of our functions (can leave out returning words when we just want length)
-#TODO decompose things into functions better
 
 
 def choose_word_with_least_letters(words, banned_letters, partial_word, contains_letters):
@@ -62,7 +57,6 @@ def choose_word_with_least_letters(words, banned_letters, partial_word, contains
         if len(letters_not_in_sets) == least_letters:
             least_words.append(word)
 
-    #print(least_words)
     return choose_random_word(least_words)
 
 
@@ -101,11 +95,6 @@ def solve(choose_word_func = choose_word, secret_word = 'tiger'):
 
         iterations += 1
 
-        print(f'Iteration {iterations}, possible words: {len(possible_words)}, guess: {guess}, partial word: {partial_word}')
-        print(f'Banned letters: {banned_letters}, contains letters: {contains_letters}')
-        if len(possible_words) < 50:
-            print(possible_words)
-
     return partial_word, iterations
 
 
@@ -129,7 +118,6 @@ def get_possible_words(words = ALL_5_LETTER_WORDS, banned_letters = set(), parti
     return matching_words
 
 
-
 def test_word(word, secret_word):
     new_partial_word = ''
     banned_letters = set(word) - set(secret_word)
@@ -143,7 +131,6 @@ def test_word(word, secret_word):
 
 
 def join_partial_words(p_word1, p_word2):
-    print(p_word1, p_word2)
     result = ''
     for l1, l2 in zip(p_word1, p_word2):
         if l1 == '_' and l2 == '_':
@@ -160,6 +147,35 @@ def join_partial_words(p_word1, p_word2):
     return result
 
 
+def interactive_wordle():
+    words = ALL_5_LETTER_WORDS
+    banned_letters = set()
+    partial_word = '_____'
+    contains_letters = set()
+
+    iterations = 0
+
+    possible_words = ALL_5_LETTER_WORDS
+    while ('_' in partial_word):
+        if len(possible_words) > 10:
+            print(f'There are {len(possible_words)} possible words')
+        else:
+            print(f'Possible words: {possible_words}')
+        print(f'Suggested guess: {optimized_choose_word(possible_words, banned_letters, partial_word, contains_letters)}')
+        print('Enter your guess into wordle and come back to me')
+        banned = input('Enter the banned letters: ')
+        contains = input('Enter the letters that appear somewhere in the word: ')
+        partial = input('What is the partial word (in the form __a_g): ')
+
+        banned_letters = banned_letters.union(set(banned))
+        contains_letters = contains_letters.union(set(contains))
+        partial_word = join_partial_words(partial_word, partial)
+
+        possible_words = get_possible_words(possible_words, banned_letters, partial_word, contains_letters)
+
+
 if __name__ == '__main__':
-    average_solve_iterations()
+    #average_solve_iterations()
+    interactive_wordle()
+    #find_optimal_first_words()
         
